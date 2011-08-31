@@ -11,19 +11,10 @@ import numpy as np
 
 # At least on Windows the results of many complex functions are not conforming
 # to the C99 standard. See ticket 1574.
-# Ditto for Solaris (ticket 1642) and OS X on PowerPC.
-olderr = np.seterr(divide='ignore')
-try:
-    functions_seem_flaky = ((np.exp(complex(np.inf, 0)).imag != 0)
-                            or (np.log(complex(np.NZERO, 0)).imag != np.pi))
-finally:
-    np.seterr(**olderr)
+# Ditto for Solaris (ticket 1642) and OS X.
+# These tests are therefore skipped on all platforms except linux.
 # TODO: replace with a check on whether platform-provided C99 funcs are used
-have_platform_functions = (sys.platform.startswith('sunos') or
-                           (sys.platform == 'darwin' and 'powerpc' in
-                                             platform.processor()))
-skip_complex_tests = (sys.platform.startswith('win') or
-                      (have_platform_functions and functions_seem_flaky))
+skip_complex_tests = not sys.platform.startswith('linux')
 
 def platform_skip(func):
     return dec.skipif(skip_complex_tests,
